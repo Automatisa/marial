@@ -14,13 +14,15 @@
 #along with this program; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import readline
-COMMANDS = ['!exit']
+COMMANDS = ['exit', 'set_trys']
 import urllib,urllib2
 from time import sleep
 
 URL ='http://localhost/util.php'
 
 def complete(text, state):
+    if text[0]=='!':
+        text = text[1:]
     for cmd in COMMANDS:
         if cmd.startswith(text):
             if not state:
@@ -32,20 +34,14 @@ userCommand = ""
 readline.parse_and_bind("tab: complete")
 readline.set_completer(complete)
 
+userCommand = raw_input('[station]: ')
+
 while userCommand != "!exit":
-    userCommand = raw_input('[station]: ')
-    #URL du formulaire
-    
-    
-    #Champ et valeur du formulaire 
     params = urllib.urlencode({'action':'write','buf': 'cmd', 'msg':userCommand}) 
-    #Envoi de la requete
     req = urllib2.Request(URL, params)
     urllib2.urlopen(req)
     
-    #Recuperation de flux cote client
     trys = 0
-    
     while trys<10:
         sleep(2)
         params = urllib.urlencode({'action': 'read', 'buf': 'out'})
@@ -62,7 +58,7 @@ while userCommand != "!exit":
     else:
         print '[!] responce timed out'
     
-    
+    userCommand = raw_input('[station]: ')
     
 
 
