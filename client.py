@@ -14,11 +14,12 @@
 #along with this program; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import readline
-COMMANDS = ['exit', 'extra', 'extension', 'stuff', 'errors',
-            'email', 'foobar', 'foo','ls','pwd']
+COMMANDS = ['!exit']
 import urllib,urllib2
-import commands
 from time import sleep
+
+URL ='http://localhost/util.php'
+
 def complete(text, state):
     for cmd in COMMANDS:
         if cmd.startswith(text):
@@ -27,43 +28,40 @@ def complete(text, state):
             else:
                 state -= 1
 
-section = ""
+userCommand = ""
 readline.parse_and_bind("tab: complete")
 readline.set_completer(complete)
-while section != "exit":
-    section = raw_input('[station]: ')
+
+while userCommand != "!exit":
+    userCommand = raw_input('[station]: ')
     #URL du formulaire
-    url ='http://localhost/util.php'
-
     
     
-
     #Champ et valeur du formulaire 
-    values={'action':'write','buf': 'cmd', 'msg':section}
-    params = urllib.urlencode(values)
-    
+    params = urllib.urlencode({'action':'write','buf': 'cmd', 'msg':userCommand}) 
     #Envoi de la requete
-    req = urllib2.Request(url, params)
-    
-    #Recuperation de la commande cote serveur
-    response2 = urllib2.urlopen(req)
-    data2=response2.read()
-    
-    
-    #Execution de la commande(pas encore faite ) et envoi le flux dans out.txt
-    s=commands.getoutput(data2)
-    values1={'action': 'write','buf': 'out','msg':s}
-    params1=urllib.urlencode(values1)
-    
-    #Envoi de la requete cote serveur
-    req1=urllib2.Request(url,params1)
+    req = urllib2.Request(URL, params)
+    urllib2.urlopen(req)
     
     #Recuperation de flux cote client
-    sleep(15)
-    values2={'action': 'read','buf': 'out'}
-    response=urllib2.urlopen(req1)
-    data=response.read()
-    print data
+    trys = 0
+    
+    while trys<10:
+        sleep(2)
+        params = urllib.urlencode({'action': 'read', 'buf': 'out'})
+        req = urllib2.Request(URL, params)
+        response = urllib2.urlopen(req)
+        data=response.read()
+        print 'data = "'+data+'"'
+        if data == '':
+            trys += 1
+        else:
+            break
+    if data != "":
+        print data
+    else:
+        print '[!] responce timed out'
+    
     
     
 
