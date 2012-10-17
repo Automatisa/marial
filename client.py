@@ -14,11 +14,12 @@
 #along with this program; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import readline
-COMMANDS = ['exit', 'set_trys']
+COMMANDS = ['exit', 'set-max-trys']
 import urllib,urllib2
 from time import sleep
 
 URL ='http://localhost/util.php'
+MAX_TRYS = 5
 
 def complete(text, state):
     if text[0]=='!':
@@ -34,21 +35,26 @@ userCommand = ""
 readline.parse_and_bind("tab: complete")
 readline.set_completer(complete)
 
-userCommand = raw_input('[station]: ')
-
 while userCommand != "!exit":
     params = urllib.urlencode({'action':'write','buf': 'cmd', 'msg':userCommand}) 
     req = urllib2.Request(URL, params)
     urllib2.urlopen(req)
     
+    userCommand = raw_input('[station]: ')
+    if userCommand == "!exit":
+        continue
+    elif userCommand.startswith("!set-max-trys"):
+        MAX_TRYS = int(userCommand[14:])  
+        print MAX_TRYS  
+        continue
     trys = 0
-    while trys<10:
+    while trys<MAX_TRYS:
         sleep(2)
         params = urllib.urlencode({'action': 'read', 'buf': 'out'})
         req = urllib2.Request(URL, params)
         response = urllib2.urlopen(req)
         data=response.read()
-        print 'data = "'+data+'"'
+        #print 'data = "'+data+'"'
         if data == '':
             trys += 1
         else:
@@ -58,11 +64,5 @@ while userCommand != "!exit":
     else:
         print '[!] responce timed out'
     
-    userCommand = raw_input('[station]: ')
-    
 
-
-
-
-
-
+        
