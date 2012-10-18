@@ -14,7 +14,7 @@
 #along with this program; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 import readline
-COMMANDS = ['exit', 'set-max-trys']
+COMMANDS = ['exit', 'set-max-trys','ls']
 import urllib,urllib2
 from time import sleep
 
@@ -49,11 +49,14 @@ while userCommand != "!exit":
         continue
     trys = 0
     while trys<MAX_TRYS:
-        sleep(2)
+        sleep(6)
         params = urllib.urlencode({'action': 'read', 'buf': 'out'})
         req = urllib2.Request(URL, params)
         response = urllib2.urlopen(req)
         data=response.read()
+	params1 = urllib.urlencode({'action': 'write','buf':'out','msg':""})
+	req1 = urllib2.Request(URL,params1)
+	urllib2.urlopen(req1)
         #print 'data = "'+data+'"'
         if data == '':
             trys += 1
